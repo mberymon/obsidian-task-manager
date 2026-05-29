@@ -1,4 +1,4 @@
-Obsidian Task Manager Plugin
+Obsidian Task Manager Plugin [![Obsidian Plugin Audit](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.obsidianpluginaudit.com%2Fbadge%2Fobsidian-task-manager%2Flatest.json%3Fversion%3D1.0.0&cacheSeconds=60)](https://obsidianpluginaudit.com/audit/obsidian-task-manager/latest)
 
 ![Obsidian Task Manager](./images/obsidian-task-manager-plugin.png)
 
