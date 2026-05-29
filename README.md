@@ -28,7 +28,7 @@ Step 2: Install a Obsidian Task Manager Plugin
 5. Go back to **Settings** > **Community plugins**, scroll down to find the newly installed plugin, and make sure it's **Toggled On**
 6. Watch this video if you need instruction on how to setup Google Calendar integration. [Configure integration with Google Calendar](https://youtu.be/BW2TJp9wV9k)
 
-## Demo
+## Watch Demo
 
 [![Task Management in Obsidian](https://img.youtube.com/vi/qficoW5vVyw/maxresdefault.jpg)](https://youtu.be/qficoW5vVyw)
 
