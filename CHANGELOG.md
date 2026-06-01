@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.0] - 2026-05-31
+## v1.1.0 - 2026-05-31
 
 ### Added
 - **List view status badge** — each task row now shows a clickable status pill (Open / In Progress / Complete / Skip) anchored to the far right
