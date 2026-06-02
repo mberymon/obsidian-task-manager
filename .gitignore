@@ -1,12 +1,12 @@
-# vscode
-.vscode 
+# jetbrains
+.idea
 
 # npm
 node_modules
 
 # Don't include the compiled main.js file in the repo.
 # This will be uploaded to GitHub releases instead.
-# main.js
+main.js
 
 # Exclude sourcemaps
 *.map

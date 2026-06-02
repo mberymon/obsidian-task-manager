@@ -1,12 +1,10 @@
-Obsidian Task Manager Plugin 
-
-[![Obsidian Plugin Audit](https://img.shields.io/endpoint?url=https%3A%2F%2Fapi.obsidianpluginaudit.com%2Fbadge%2Fobsidian-task-manager%2Flatest.json%3Fversion%3D1.0.0&cacheSeconds=60)](https://obsidianpluginaudit.com/audit/obsidian-task-manager/latest)
-
-![Obsidian Task Manager](./images/obsidian-task-manager-plugin.png)
+Obsidian Task Views Plugin 
 
 Manage Tasks in Obsidian with ease and integrate with Google Calendar for full task and event management. Keep your tasks and events local and private, but sync them to your Google Calendar for easy access and notifications. Your tasks and events are synced in real-time.
 
-Original plugin's author, Antone Heyward: [Buying me a coffee](https://buymeacoffee.com/antoneheyward) [ProductiveMatters.com](https://productivematters.com)
+Based on this original plugin: https://github.com/antoneheyward/obsidian-task-manager
+
+by Antone Heyward: [Buying me a coffee](https://buymeacoffee.com/antoneheyward) | [ProductiveMatters.com](https://productivematters.com)
 
 ## Installation
 
@@ -19,12 +17,12 @@ Step 1: Install BRAT
 
 Step 2: Install a Obsidian Task Manager Plugin
 
-1. Get the GitHub repository URL: https://github.com/mberymon/obsidian-task-manager
+1. Get the GitHub repository URL: https://github.com/mberymon/obsidian-task-views
 2. Go to Obsidian **Settings** and scroll down to the **BRAT** section in your sidebar.
 3. Click **Add Beta plugin**.
 4. Paste the copied GitHub link, select the latest version, and click **Add Plugin**.
 5. Go back to **Settings** > **Community plugins**, scroll down to find the newly installed plugin, and make sure it's **Toggled On**
-6. Watch this video if you need instruction on how to setup Google Calendar integration. [Configure integration with Google Calendar](https://youtu.be/BW2TJp9wV9k)
+6. ~~Watch this video if you need instruction on how to setup Google Calendar integration. [Configure integration with Google Calendar](https://youtu.be/BW2TJp9wV9k)~~
 
 ## Usage
 
