@@ -6,11 +6,7 @@ Obsidian Task Manager Plugin
 
 Manage Tasks in Obsidian with ease and integrate with Google Calendar for full task and event management. Keep your tasks and events local and private, but sync them to your Google Calendar for easy access and notifications. Your tasks and events are synced in real-time.
 
-NOTE: I built this tool for my personal needs and it's 100% vibe coded. I am sharing the plugin with the community in hopes that it will be useful to others.
-
-If you love using Obsidian Task Plugin, consider supporting the development by [Buying me a coffee](https://buymeacoffee.com/antoneheyward).
-
-You can also find me at [ProductiveMatters.com](https://productivematters.com)
+Original plugin's author, Antone Heyward: [Buying me a coffee](https://buymeacoffee.com/antoneheyward) [ProductiveMatters.com](https://productivematters.com)
 
 ## Installation
 
@@ -23,15 +19,78 @@ Step 1: Install BRAT
 
 Step 2: Install a Obsidian Task Manager Plugin
 
-1. Get the GitHub repository URL: https://github.com/antoneheyward/obsidian-task-manager
+1. Get the GitHub repository URL: https://github.com/mberymon/obsidian-task-manager
 2. Go to Obsidian **Settings** and scroll down to the **BRAT** section in your sidebar.
 3. Click **Add Beta plugin**.
 4. Paste the copied GitHub link, select the latest version, and click **Add Plugin**.
 5. Go back to **Settings** > **Community plugins**, scroll down to find the newly installed plugin, and make sure it's **Toggled On**
 6. Watch this video if you need instruction on how to setup Google Calendar integration. [Configure integration with Google Calendar](https://youtu.be/BW2TJp9wV9k)
 
-## Watch Demo
+## Usage
 
-[![Task Management in Obsidian](https://img.youtube.com/vi/qficoW5vVyw/maxresdefault.jpg)](https://youtu.be/qficoW5vVyw)
+### Creating Tasks
 
-[![Obsidian Task Manager - Public Release and New Updates!](https://img.youtube.com/vi/wkZi8BnoDZ0/maxresdefault.jpg)](https://youtu.be/wkZi8BnoDZ0)
+1. Click the **check-square** ribbon icon to create a new task
+2. Use the command palette: `Task Manager: Create new task`
+3. Or write tasks directly in markdown:
+
+```markdown
+- [ ] My task 📅2024-01-15 ⏫ 🏷️work
+```
+
+### Viewing Tasks
+
+Use code blocks to display tasks in different views:
+
+#### Table View (default)
+
+````markdown
+```task-manager
+view: table
+sortBy: dueDate
+```
+````
+
+#### Kanban View
+
+````markdown
+```task-manager
+view: kanban
+```
+````
+
+#### Calendar View
+
+````markdown
+```task-manager
+view: calendar
+dateRange: month
+```
+````
+
+### Task Format
+
+| Field | Emoji | Example |
+|-------|-------|---------|
+| Due Date | 📅 | `📅2024-01-15` |
+| Start Date | ⏳ | `⏳2024-01-10` |
+| Priority | ⏫🔼🔽 | `⏫` (urgent) |
+| Tags | 🏷️ | `🏷️work,urgent` |
+| Group | 📁 | `📁Inbox` |
+| Duration | ⏱️ | `⏱️30` |
+| Recurrence | 🔁 | `🔁FREQ=WEEKLY;BYDAY=MO` |
+
+### Commands
+
+- **Task Manager: Create new task** - Open the create task modal
+- **Task Manager: Toggle task status** - Toggle checkbox on current line
+
+### Settings
+
+Configure the plugin in Obsidian Settings > Task Manager:
+
+- Task folder location
+- Default view type
+- Show completed/cancelled tasks
+- Date format
+- Google Calendar integration

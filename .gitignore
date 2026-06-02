@@ -4,24 +4,12 @@
 # npm
 node_modules
 
-# Don't include the compiled main.js file in the repo.
+# Don't include the compiled main.js.original file in the repo.
 # This will be uploaded to GitHub releases instead.
-main.js
+# main.js.original
 
 # Exclude sourcemaps
 *.map
-
-# Exclude macOS Finder (System Explorer) View States
-.DS_Store
-
-# Ignore local user AI rules
-.claude
-.cursorrules
-.cursorignore
-.github/copilot-instructions.md
-AGENTS.md
-CLAUDE.md
-GEMINI.md
 
 # Ignore local build script
 scripts/build-local.sh
