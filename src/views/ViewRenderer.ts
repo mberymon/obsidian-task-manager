@@ -153,14 +153,14 @@ class ViewRenderChild extends MarkdownRenderChild {
 
     switch (this.params.view) {
       case "kanban":
-        KanbanView.render(viewContent, filteredTasks, this.params, this.onTaskUpdate);
+        KanbanView.render(viewContent, filteredTasks, this.params, this.onTaskUpdate, this.onTaskCreate);
         break;
       case "calendar":
-        CalendarView.render(viewContent, filteredTasks, this.params, this.onTaskUpdate);
+        CalendarView.render(viewContent, filteredTasks, this.params, this.onTaskUpdate, this.onTaskCreate);
         break;
       case "table":
       default:
-        TableView.render(viewContent, filteredTasks, this.params, this.onTaskUpdate);
+        TableView.render(viewContent, filteredTasks, this.params, this.onTaskUpdate, this.onTaskCreate);
         break;
     }
   }
