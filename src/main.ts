@@ -1,6 +1,6 @@
 import { Plugin, Notice, MarkdownView, TFile } from "obsidian";
 import type { Editor, MarkdownFileInfo } from "obsidian";
-import { Task, TaskManagerSettings, TaskFormData, TaskStatus, TaskPriority, CodeBlockParams, ViewType, RepeatFreq } from "./types";
+import { Task, TaskManagerSettings, TaskFormData, TaskStatus, TaskPriority} from "./types"; //, CodeBlockParams, ViewType, RepeatFreq
 import { TaskManager } from "./tasks/TaskManager";
 import { TaskFileManager } from "./vault/TaskFileManager";
 import { ViewRenderer } from "./views/ViewRenderer";

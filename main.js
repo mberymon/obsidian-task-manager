@@ -294,39 +294,58 @@ var RRuleParser = class {
 };
 
 // src/tasks/TaskManager.ts
+var CHECKBOX_REGEX = /^(\s*)[-*]\s+\[([ xX>\/-])\]\s+(.*)$/;
+var DUE_DATE_REGEX = /📅\s*(\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?)/;
+var START_DATE_REGEX = /⏳\s*(\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?)/;
+var COMPLETED_DATE_REGEX = /✅\s*(\d{4}-\d{2}-\d{2})/;
+var PRIORITY_REGEX = /(⏫|🔼|🔽)/;
+var TAG_EMOJI_REGEX = /🏷️\s*([^\s]+)/;
+var HASHTAG_REGEX = /#(\S+)/g;
+var REPEAT_REGEX = /🔁\s*(RRULE:)?(.+?)(?=\s*📅|🏷️|⏳|✅|⏫|🔼|🔽|$)/;
+var GROUP_REGEX = /📁\s*(\S+)/;
+var DURATION_REGEX = /⏱️\s*(\d+)/;
 var TaskManager = class {
-  constructor() {
-    this.tasks = /* @__PURE__ */ new Map();
-  }
   /**
    * Parse a markdown line into a task object.
    * Expected format: - [ ] Task title 📅2024-01-15 ⏳2024-01-10 🔼 🏷️work,urgent 🔁FREQ=WEEKLY;BYDAY=MO
+   * 
+   * @param line - The markdown line to parse
+   * @param filePath - Path to the source file
+   * @param lineNum - Line number in the file (1-based)
+   * @returns Parsed Task object or null if not a valid task line
    */
   static parseTaskLine(line, filePath, lineNum) {
-    var _a, _b, _c;
-    const checkboxMatch = line.match(/^(\s*)[-*]\s+\[([ xX>\/-])\]\s+(.*)$/);
-    if (!checkboxMatch) return null;
-    const [, indent, checkbox, content] = checkboxMatch;
+    var _a;
+    const checkboxMatch = line.match(CHECKBOX_REGEX);
+    if (!checkboxMatch) {
+      return null;
+    }
+    const [, , checkbox, content] = checkboxMatch;
     const status = this.parseCheckboxStatus(checkbox);
     const { title, metadata } = this.parseTaskContent(content);
-    const id = `${filePath}:${lineNum}`;
     return {
-      id,
+      id: this.generateTaskId(filePath, lineNum),
       filePath,
       line: lineNum,
       title,
       status,
       priority: (_a = metadata.priority) != null ? _a : 0 /* None */,
-      tags: (_b = metadata.tags) != null ? _b : [],
+      tags: metadata.tags,
       dueDate: metadata.dueDate,
       startDate: metadata.startDate,
       completedDate: metadata.completedDate,
       duration: metadata.duration,
-      isAllDay: (_c = metadata.isAllDay) != null ? _c : true,
+      isAllDay: metadata.isAllDay,
       repeat: metadata.repeat,
       group: metadata.group,
       content: line
     };
+  }
+  /**
+   * Generate a unique task ID from file path and line number
+   */
+  static generateTaskId(filePath, lineNum) {
+    return `${filePath}:${lineNum}`;
   }
   /**
    * Parse checkbox character to TaskStatus
@@ -347,74 +366,102 @@ var TaskManager = class {
   }
   /**
    * Parse task content and extract metadata
+   * Uses a helper function approach to avoid code duplication in date/metadata extraction
    */
   static parseTaskContent(content) {
-    const metadata = {
-      tags: []
-    };
+    const metadata = { tags: [] };
     let title = content;
-    const dueDateMatch = title.match(/📅\s*(\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?)/);
-    if (dueDateMatch) {
-      metadata.dueDate = dueDateMatch[1];
-      title = title.replace(dueDateMatch[0], "").trim();
+    title = this.extractDateField(title, DUE_DATE_REGEX, (val) => {
+      metadata.dueDate = val;
+    });
+    title = this.extractDateField(title, START_DATE_REGEX, (val) => {
+      metadata.startDate = val;
+    });
+    title = this.extractDateField(title, COMPLETED_DATE_REGEX, (val) => {
+      metadata.completedDate = val;
+    });
+    title = this.extractPriority(title, metadata);
+    title = this.extractTags(title, metadata);
+    title = this.extractRecurrence(title, metadata);
+    title = this.extractField(title, GROUP_REGEX, (val) => {
+      metadata.group = val;
+    });
+    title = this.extractField(title, DURATION_REGEX, (val) => {
+      metadata.duration = parseInt(val, 10);
+    });
+    title = title.replace(/\s+/g, " ").trim();
+    return { title, metadata };
+  }
+  /**
+   * Extract a date field from content and store in metadata
+   */
+  static extractDateField(content, regex, setter) {
+    const match = content.match(regex);
+    if (match) {
+      setter(match[1]);
+      return content.replace(match[0], "").trim();
     }
-    const startDateMatch = title.match(/⏳\s*(\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?)/);
-    if (startDateMatch) {
-      metadata.startDate = startDateMatch[1];
-      title = title.replace(startDateMatch[0], "").trim();
+    return content;
+  }
+  /**
+   * Extract priority from content
+   */
+  static extractPriority(content, metadata) {
+    const match = content.match(PRIORITY_REGEX);
+    if (match) {
+      const priorityMap = {
+        "\u23EB": 3 /* Urgent */,
+        "\u{1F53C}": 2 /* High */,
+        "\u{1F53D}": -1 /* Low */
+      };
+      metadata.priority = priorityMap[match[1]];
+      return content.replace(match[0], "").trim();
     }
-    const completedDateMatch = title.match(/✅\s*(\d{4}-\d{2}-\d{2})/);
-    if (completedDateMatch) {
-      metadata.completedDate = completedDateMatch[1];
-      title = title.replace(completedDateMatch[0], "").trim();
-    }
-    const priorityMatch = title.match(/(⏫|🔼|🔽)/);
-    if (priorityMatch) {
-      switch (priorityMatch[1]) {
-        case "\u23EB":
-          metadata.priority = 3 /* Urgent */;
-          break;
-        case "\u{1F53C}":
-          metadata.priority = 2 /* High */;
-          break;
-        case "\u{1F53D}":
-          metadata.priority = -1 /* Low */;
-          break;
-      }
-      title = title.replace(priorityMatch[0], "").trim();
-    }
-    const tagEmojiMatch = title.match(/🏷️\s*([^\s]+)/);
+    return content;
+  }
+  /**
+   * Extract tags from content (both emoji and hashtag formats)
+   */
+  static extractTags(content, metadata) {
+    const tagEmojiMatch = content.match(TAG_EMOJI_REGEX);
     if (tagEmojiMatch) {
-      metadata.tags = tagEmojiMatch[1].split(",").map((t) => t.trim());
-      title = title.replace(tagEmojiMatch[0], "").trim();
+      metadata.tags = tagEmojiMatch[1].split(",").map((t) => t.trim()).filter(Boolean);
+      content = content.replace(tagEmojiMatch[0], "").trim();
     }
-    const hashtagMatches = title.match(/#(\S+)/g);
+    const hashtagMatches = content.match(HASHTAG_REGEX);
     if (hashtagMatches) {
-      const tags = hashtagMatches.map((m) => m.slice(1));
-      metadata.tags.push(...tags);
-      title = title.replace(/#\S+/g, "").trim();
+      const hashTags = hashtagMatches.map((m) => m.slice(1)).filter(Boolean);
+      metadata.tags.push(...hashTags);
+      content = content.replace(/#\S+/g, "").trim();
     }
-    const repeatMatch = title.match(/🔁\s*(RRULE:)?(.+?)(?=\s*📅|🏷️|⏳|✅|⏫|🔼|🔽|$)/);
-    if (repeatMatch) {
-      const rruleStr = repeatMatch[2].trim();
-      const repeat = RRuleParser.fromRRule(rruleStr.startsWith("RRULE:") ? rruleStr : `RRULE:${rruleStr}`);
+    return content;
+  }
+  /**
+   * Extract recurrence rule from content
+   */
+  static extractRecurrence(content, metadata) {
+    const match = content.match(REPEAT_REGEX);
+    if (match) {
+      const rruleStr = match[2].trim();
+      const fullRrule = rruleStr.startsWith("RRULE:") ? rruleStr : `RRULE:${rruleStr}`;
+      const repeat = RRuleParser.fromRRule(fullRrule);
       if (repeat) {
         metadata.repeat = repeat;
       }
-      title = title.replace(repeatMatch[0], "").trim();
+      return content.replace(match[0], "").trim();
     }
-    const groupMatch = title.match(/📁\s*(\S+)/);
-    if (groupMatch) {
-      metadata.group = groupMatch[1];
-      title = title.replace(groupMatch[0], "").trim();
+    return content;
+  }
+  /**
+   * Generic field extractor using regex
+   */
+  static extractField(content, regex, setter) {
+    const match = content.match(regex);
+    if (match) {
+      setter(match[1]);
+      return content.replace(match[0], "").trim();
     }
-    const durationMatch = title.match(/⏱️\s*(\d+)/);
-    if (durationMatch) {
-      metadata.duration = parseInt(durationMatch[1], 10);
-      title = title.replace(durationMatch[0], "").trim();
-    }
-    title = title.replace(/\s+/g, " ").trim();
-    return { title, metadata };
+    return content;
   }
   /**
    * Serialize a task back to markdown format
@@ -472,43 +519,34 @@ var TaskManager = class {
   }
   /**
    * Filter tasks based on code block parameters
+   * Uses a single-pass predicate approach to avoid creating intermediate arrays
    */
   static filterTasks(tasks, params) {
-    let filtered = [...tasks];
-    if (!params.showCompleted) {
-      filtered = filtered.filter((t) => t.status !== 2 /* Completed */);
-    }
-    if (!params.showCancelled) {
-      filtered = filtered.filter((t) => t.status !== 3 /* Cancelled */);
-    }
-    if (params.groups && params.groups.length > 0) {
-      filtered = filtered.filter((t) => t.group && params.groups.includes(t.group));
-    }
-    if (params.tags && params.tags.length > 0) {
-      filtered = filtered.filter(
-        (t) => t.tags.some((tag) => params.tags.includes(tag))
-      );
-    }
-    if (params.dateRange) {
-      const { start, end } = this.parseDateRange(params.dateRange);
-      if (start && end) {
-        filtered = filtered.filter((t) => {
-          if (!t.dueDate) return false;
-          const dueDate = t.dueDate.split(" ")[0];
-          return dueDate >= start && dueDate <= end;
-        });
+    var _a, _b, _c;
+    const dateRange = params.dateRange ? this.parseDateRange(params.dateRange) : null;
+    const filterLower = (_a = params.filter) == null ? void 0 : _a.toLowerCase();
+    const groupsSet = ((_b = params.groups) == null ? void 0 : _b.length) ? new Set(params.groups) : null;
+    const tagsSet = ((_c = params.tags) == null ? void 0 : _c.length) ? new Set(params.tags) : null;
+    const filtered = tasks.filter((t) => {
+      var _a2;
+      if (!params.showCompleted && t.status === 2 /* Completed */) return false;
+      if (!params.showCancelled && t.status === 3 /* Cancelled */) return false;
+      if (groupsSet && (!t.group || !groupsSet.has(t.group))) return false;
+      if (tagsSet && !t.tags.some((tag) => tagsSet.has(tag))) return false;
+      if (dateRange) {
+        if (!t.dueDate) return false;
+        const dueDate = t.dueDate.split(" ")[0];
+        if (dueDate < dateRange.start || dueDate > dateRange.end) return false;
       }
-    }
-    if (params.filter) {
-      const filterLower = params.filter.toLowerCase();
-      filtered = filtered.filter((t) => {
-        return t.title.toLowerCase().includes(filterLower) || t.tags.some((tag) => tag.toLowerCase().includes(filterLower)) || t.group && t.group.toLowerCase().includes(filterLower);
-      });
-    }
-    if (params.limit && params.limit > 0) {
-      filtered = filtered.slice(0, params.limit);
-    }
-    return filtered;
+      if (filterLower) {
+        const matchesTitle = t.title.toLowerCase().includes(filterLower);
+        const matchesTags = t.tags.some((tag) => tag.toLowerCase().includes(filterLower));
+        const matchesGroup = (_a2 = t.group) == null ? void 0 : _a2.toLowerCase().includes(filterLower);
+        if (!matchesTitle && !matchesTags && !matchesGroup) return false;
+      }
+      return true;
+    });
+    return params.limit && params.limit > 0 ? filtered.slice(0, params.limit) : filtered;
   }
   /**
    * Sort tasks based on parameters
@@ -584,14 +622,15 @@ var TaskManager = class {
   }
   /**
    * Generate ghost occurrences for recurring tasks within a date range
+   * Only generates ghosts for pending/in-progress tasks with valid recurrence rules
    */
   static generateRecurringOccurrences(tasks, rangeStart, rangeEnd) {
-    var _a;
     const ghosts = [];
-    for (const task of tasks) {
-      if (!task.repeat || task.repeatParentId || task.status >= 2 || !task.dueDate) {
-        continue;
-      }
+    const activeTasks = tasks.filter(
+      (task) => task.repeat && !task.repeatParentId && task.status < 2 /* Completed */ && // Use enum instead of magic number 2
+      task.dueDate
+    );
+    for (const task of activeTasks) {
       const occurrences = RRuleParser.generateOccurrences(
         {
           id: task.id,
@@ -612,26 +651,34 @@ var TaskManager = class {
         rangeEnd
       );
       for (const occ of occurrences) {
-        ghosts.push({
-          id: occ.id,
-          filePath: occ.filePath,
-          line: -1,
-          title: occ.title,
-          status: 0 /* Pending */,
-          priority: occ.priority,
-          tags: (_a = occ.tags) != null ? _a : [],
-          dueDate: occ.dueDate,
-          startDate: occ.startDate,
-          duration: occ.duration,
-          isAllDay: occ.isAllDay,
-          repeat: task.repeat,
-          repeatParentId: task.id,
-          group: occ.group,
-          isGhost: true
-        });
+        ghosts.push(this.createGhostTask(occ, task));
       }
     }
     return ghosts;
+  }
+  /**
+   * Create a ghost task for a recurring occurrence
+   */
+  static createGhostTask(occ, parentTask) {
+    var _a, _b, _c, _d, _e, _f, _g;
+    return {
+      id: (_a = occ.id) != null ? _a : "",
+      filePath: (_b = occ.filePath) != null ? _b : "",
+      line: -1,
+      // Ghost tasks don't have a real line number
+      title: (_c = occ.title) != null ? _c : "",
+      status: 0 /* Pending */,
+      priority: (_d = occ.priority) != null ? _d : 0 /* None */,
+      tags: (_e = occ.tags) != null ? _e : [],
+      dueDate: (_f = occ.dueDate) != null ? _f : "",
+      startDate: occ.startDate,
+      duration: occ.duration,
+      isAllDay: (_g = occ.isAllDay) != null ? _g : true,
+      repeat: parentTask.repeat,
+      repeatParentId: parentTask.id,
+      group: occ.group,
+      isGhost: true
+    };
   }
   /**
    * Parse date range string

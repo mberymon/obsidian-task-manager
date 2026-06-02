@@ -1,11 +1,11 @@
 {
-  "id": "obsidian-task-manager",
-  "name": "Task Manager",
-  "version": "1.1.0",
+  "id": "obsidian-task-views",
+  "name": "Task Views",
+  "version": "0.0.1",
   "minAppVersion": "1.12.0",
   "description": "Local task management with markdown files and Google Calendar integration.",
-  "author": "Antone Heyward",
-  "authorUrl": "https://github.com/antoneheyward",
+  "author": "Antone Heyward, Mose Berymon",
+  "authorUrl": "https://github.com/mberymon",
   "fundingUrl": "https://github.com/sponsors/antoneheyward",
   "isDesktopOnly": false
 }

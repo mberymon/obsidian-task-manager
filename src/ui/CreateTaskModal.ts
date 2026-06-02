@@ -1,13 +1,13 @@
 import { App, Modal, Notice, setIcon } from "obsidian";
 import { TaskFormData, TaskStatus, TaskPriority, RepeatConfig, RepeatFreq } from "../types";
-import { RRuleParser } from "../tasks/RRuleParser";
+//import { RRuleParser } from "../tasks/RRuleParser";
 
 // Day constants for repeat panel
 const RFC_DAYS = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const WEEKDAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const ORDINAL_LABELS = ["1st", "2nd", "3rd", "4th", "Last"];
-const ORDINAL_VALUES = [1, 2, 3, 4, -1];
+//const WEEKDAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+//const ORDINAL_LABELS = ["1st", "2nd", "3rd", "4th", "Last"];
+//const ORDINAL_VALUES = [1, 2, 3, 4, -1];
 
 /**
  * CreateTaskModal - Modal for creating and editing tasks
