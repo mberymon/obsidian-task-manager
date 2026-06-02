@@ -68,9 +68,29 @@ export class TaskManager {
    */
   private static parseTaskContent(content: string): {
     title: string;
-    metadata: Record<string, unknown>;
+    metadata: {
+      tags: string[];
+      priority?: TaskPriority;
+      dueDate?: string;
+      startDate?: string;
+      completedDate?: string;
+      duration?: number;
+      isAllDay?: boolean;
+      repeat?: RepeatConfig;
+      group?: string;
+    };
   } {
-    const metadata: Record<string, unknown> = {
+    const metadata: {
+      tags: string[];
+      priority?: TaskPriority;
+      dueDate?: string;
+      startDate?: string;
+      completedDate?: string;
+      duration?: number;
+      isAllDay?: boolean;
+      repeat?: RepeatConfig;
+      group?: string;
+    } = {
       tags: [],
     };
     let title = content;

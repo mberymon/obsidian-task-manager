@@ -249,8 +249,8 @@ export class CreateTaskModal extends Modal {
   private dateField(
     container: HTMLElement,
     label: string,
-    dateValue: string,
-    timeValue: string,
+    dateValue: string | undefined,
+    timeValue: string | undefined,
     onDateChange: (date: string) => void,
     onTimeChange: (time: string) => void
   ): void {
@@ -261,7 +261,7 @@ export class CreateTaskModal extends Modal {
       cls: "tm-date-input",
       type: "date",
     });
-    dateInput.value = dateValue;
+    dateInput.value = dateValue ?? "";
     dateInput.addEventListener("change", () => {
       onDateChange(dateInput.value);
     });
@@ -276,7 +276,7 @@ export class CreateTaskModal extends Modal {
       cls: "tm-time-input",
       type: "time",
     });
-    timeInput.value = timeValue;
+    timeInput.value = timeValue ?? "";
     timeInput.style.display = this.data.isAllDay ? "none" : "";
     timeInput.addEventListener("change", () => {
       onTimeChange(timeInput.value);

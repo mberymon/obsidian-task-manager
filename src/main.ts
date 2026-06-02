@@ -1,4 +1,5 @@
 import { Plugin, Notice, MarkdownView, TFile } from "obsidian";
+import type { Editor, MarkdownFileInfo } from "obsidian";
 import { Task, TaskManagerSettings, TaskFormData, TaskStatus, TaskPriority, CodeBlockParams, ViewType, RepeatFreq } from "./types";
 import { TaskManager } from "./tasks/TaskManager";
 import { TaskFileManager } from "./vault/TaskFileManager";
@@ -217,10 +218,7 @@ export default class TaskManagerPlugin extends Plugin {
   /**
    * Toggle task status on the current editor line
    */
-  private toggleTaskOnLine(
-    editor: Parameters<Parameters<typeof this.addCommand>[0]>["editor"],
-    view: MarkdownView
-  ): void {
+  private toggleTaskOnLine(editor: Editor, view: MarkdownView | MarkdownFileInfo): void {
     const cursor = editor.getCursor();
     const line = editor.getLine(cursor.line);
 

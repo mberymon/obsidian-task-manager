@@ -35,71 +35,61 @@ export class FrontmatterParser {
   private static parseYaml(yaml: string): Record<string, unknown> {
     const result: Record<string, unknown> = {};
     const lines = yaml.split("\n");
-    let currentKey: string | null = null;
-    let currentArray: string[] | null = null;
-    let currentObject: Record<string, unknown> | null = null;
-    let objectKey: string | null = null;
+    let i = 0;
 
-    for (const line of lines) {
+    while (i < lines.length) {
+      const line = lines[i];
+      i++;
+
       // Skip empty lines and comments
       if (!line.trim() || line.trim().startsWith("#")) continue;
 
-      // Check for array continuation (2 spaces + -)
-      if (line.startsWith("  - ") && currentKey) {
-        const value = line.slice(4).trim();
-        if (currentArray) {
-          currentArray.push(this.parseYamlValue(value));
-        }
-        continue;
-      }
-
-      // Check for nested object property (2 spaces + key:)
-      if (line.startsWith("  ") && !line.startsWith("  - ") && currentKey && objectKey) {
-        const colonIdx = line.indexOf(":");
-        if (colonIdx > 0) {
-          const key = line.slice(2, colonIdx).trim();
-          const value = line.slice(colonIdx + 1).trim();
-          if (currentObject) {
-            currentObject[key] = this.parseYamlValue(value);
-          }
-        }
-        continue;
-      }
-
-      // Reset array/object state if we're at a top-level key
-      if (currentArray && !line.startsWith("  - ")) {
-        result[currentKey!] = currentArray;
-        currentArray = null;
-      }
-      if (currentObject && objectKey) {
-        result[objectKey] = currentObject;
-        currentObject = null;
-        objectKey = null;
-      }
-
       // Parse top-level key:value
       const colonIdx = line.indexOf(":");
-      if (colonIdx > 0) {
-        const key = line.slice(0, colonIdx).trim();
-        const value = line.slice(colonIdx + 1).trim();
+      if (colonIdx <= 0) continue;
 
-        if (value === "") {
-          // Could be start of array or nested object
-          currentKey = key;
-          // We'll determine type when we see the next line
+      const key = line.slice(0, colonIdx).trim();
+      const value = line.slice(colonIdx + 1).trim();
+
+      if (value !== "") {
+        result[key] = this.parseYamlValue(value);
+        continue;
+      }
+
+      // Value is empty - could be array or nested object
+      // Collect indented lines
+      const indentedLines: string[] = [];
+      while (i < lines.length) {
+        const nextLine = lines[i];
+        if (nextLine.startsWith("  ") && nextLine.trim()) {
+          indentedLines.push(nextLine);
+          i++;
         } else {
-          result[key] = this.parseYamlValue(value);
-          currentKey = null;
+          break;
         }
       }
-    }
 
-    // Flush remaining state
-    if (currentArray && currentKey) {
-      result[currentKey] = currentArray;
-    }
-    if (currentObject && objectKey) {
-      result[objectKey] = currentObject;
+      if (indentedLines.length === 0) {
+        result[key] = "";
+        continue;
+      }
+
+      // Check if it's an array (all lines start with "  - ")
+      if (indentedLines.every((l) => l.trimStart().startsWith("- "))) {
+        result[key] = indentedLines.map((l) => this.parseYamlValue(l.trimStart().slice(2).trim()));
+      } else {
+        // It's a nested object
+        const obj: Record<string, unknown> = {};
+        for (const indentedLine of indentedLines) {
+          const innerColonIdx = indentedLine.indexOf(":");
+          if (innerColonIdx > 0) {
+            const innerKey = indentedLine.slice(2, innerColonIdx).trim();
+            const innerValue = indentedLine.slice(innerColonIdx + 1).trim();
+            obj[innerKey] = this.parseYamlValue(innerValue);
+          }
+        }
+        result[key] = obj;
+      }
     }
 
     return result;
