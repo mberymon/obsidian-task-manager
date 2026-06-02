@@ -10,7 +10,7 @@ const PRIORITY_REGEX = /(⏫|🔼|🔽)/;
 const TAG_EMOJI_REGEX = /🏷️\s*([^\s]+)/;
 const HASHTAG_REGEX = /#(\S+)/g;
 const REPEAT_REGEX = /🔁\s*(RRULE:)?(.+?)(?=\s*📅|🏷️|⏳|✅|⏫|🔼|🔽|$)/;
-const GROUP_REGEX = /📁\s*(\S+)/;
+const PROJECT_REGEX = /📁\s*(\S+)/;
 const DURATION_REGEX = /⏱️\s*(\d+)/;
 
 /**
@@ -25,7 +25,7 @@ interface TaskMetadata {
   duration?: number;
   isAllDay?: boolean;
   repeat?: RepeatConfig;
-  group?: string;
+  project?: string;
 }
 
 /**
@@ -67,7 +67,7 @@ export class TaskManager {
       duration: metadata.duration,
       isAllDay: metadata.isAllDay,
       repeat: metadata.repeat,
-      group: metadata.group,
+      project: metadata.project,
       content: line,
     };
   }
@@ -119,8 +119,8 @@ export class TaskManager {
     // Extract recurrence
     title = this.extractRecurrence(title, metadata);
 
-    // Extract group
-    title = this.extractField(title, GROUP_REGEX, (val) => { metadata.group = val; });
+    // Extract project
+    title = this.extractField(title, PROJECT_REGEX, (val) => { metadata.project = val; });
 
     // Extract duration
     title = this.extractField(title, DURATION_REGEX, (val) => { metadata.duration = parseInt(val, 10); });
@@ -267,9 +267,9 @@ export class TaskManager {
       line += ` 🏷️${task.tags.join(",")}`;
     }
 
-    // Add group
-    if (task.group) {
-      line += ` 📁${task.group}`;
+    // Add project
+    if (task.project) {
+      line += ` 📁${task.project}`;
     }
 
     // Add duration
@@ -293,7 +293,7 @@ export class TaskManager {
     // Pre-compute filter values to avoid repeated work
     const dateRange = params.dateRange ? this.parseDateRange(params.dateRange) : null;
     const filterLower = params.filter?.toLowerCase();
-    const groupsSet = params.groups?.length ? new Set(params.groups) : null;
+    const groupsSet = params.projects?.length ? new Set(params.projects) : null;
     const tagsSet = params.tags?.length ? new Set(params.tags) : null;
 
     // Single-pass filtering with combined predicate
@@ -302,8 +302,8 @@ export class TaskManager {
       if (!params.showCompleted && t.status === TaskStatus.Completed) return false;
       if (!params.showCancelled && t.status === TaskStatus.Cancelled) return false;
 
-      // Group filter
-      if (groupsSet && (!t.group || !groupsSet.has(t.group))) return false;
+      // Project filter
+      if (groupsSet && (!t.project || !groupsSet.has(t.project))) return false;
 
       // Tag filter
       if (tagsSet && !t.tags.some((tag) => tagsSet.has(tag))) return false;
@@ -319,8 +319,8 @@ export class TaskManager {
       if (filterLower) {
         const matchesTitle = t.title.toLowerCase().includes(filterLower);
         const matchesTags = t.tags.some((tag) => tag.toLowerCase().includes(filterLower));
-        const matchesGroup = t.group?.toLowerCase().includes(filterLower);
-        if (!matchesTitle && !matchesTags && !matchesGroup) return false;
+        const matchesProject = t.project?.toLowerCase().includes(filterLower);
+        if (!matchesTitle && !matchesTags && !matchesProject) return false;
       }
 
       return true;
@@ -361,8 +361,11 @@ export class TaskManager {
         case "title":
           result = a.title.localeCompare(b.title);
           break;
+        case "project":
+          result = (a.project ?? "").localeCompare(b.project ?? "");
+          break;
         case "group":
-          result = (a.group ?? "").localeCompare(b.group ?? "");
+          result = (a.project ?? "").localeCompare(b.project ?? "");
           break;
         case "status":
           result = a.status - b.status;
@@ -394,7 +397,8 @@ export class TaskManager {
           key = this.getPriorityLabel(task.priority);
           break;
         case "group":
-          key = task.group ?? "No Group";
+        case "project":
+          key = task.project ?? "No Project";
           break;
         case "tags":
           key = task.tags.length > 0 ? task.tags.join(", ") : "No Tags";
@@ -445,7 +449,7 @@ export class TaskManager {
           status: task.status,
           isAllDay: task.isAllDay,
           tags: task.tags,
-          group: task.group,
+           group: task.project as string | undefined,
           repeat: task.repeat,
           repeatParentId: task.repeatParentId,
         },
@@ -476,7 +480,7 @@ export class TaskManager {
       status?: TaskStatus;
       isAllDay?: boolean;
       tags?: string[];
-      group?: string;
+      project?: string;
       repeat?: RepeatConfig;
       repeatParentId?: string;
     },
@@ -496,7 +500,7 @@ export class TaskManager {
       isAllDay: occ.isAllDay ?? true,
       repeat: parentTask.repeat,
       repeatParentId: parentTask.id,
-      group: occ.group,
+      project: occ.project,
       isGhost: true,
     };
   }

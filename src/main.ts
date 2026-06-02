@@ -108,21 +108,25 @@ export default class TaskManagerPlugin extends Plugin {
     return {
       taskFolderPath: "tasks",
       defaultTaskFile: "tasks.md",
+      defaultProject: "Inbox",
       defaultView: "table",
       showCompletedByDefault: false,
       showCancelledByDefault: false,
+      defaultCalendarView: "month",
       dateFormat: "YYYY-MM-DD",
       timeFormat: "HH:mm",
       use24HourTime: true,
       startOfWeek: 0,
       defaultRepeatFreq: "WEEKLY",
       defaultRepeatInterval: 1,
-      enableGoogleCalendar: false,
       taskTypes: [
         { name: "task", icon: "check-square" },
         { name: "event", icon: "calendar" },
         { name: "note", icon: "file-text" },
       ],
+      knownProjects: ["Inbox"],
+      knownTags: [],
+      knownTypes: ["task", "event", "note"],
     };
   }
 
@@ -174,17 +178,17 @@ export default class TaskManagerPlugin extends Plugin {
   /**
    * Open the create task modal
    */
-  private openCreateTaskModal(): void {
+  private async openCreateTaskModal(): Promise<void> {
     if (!this.fileManager) return;
+
+    // Gather known options from vault
+    const projects = await this.fileManager.getProjectNames();
+    const tags = await this.fileManager.getTagNames();
+    const types = this.settings.knownTypes.map((t) => t);
 
     const modal = new CreateTaskModal(
       this.app,
-      {
-        status: TaskStatus.Pending,
-        priority: TaskPriority.None,
-        isAllDay: true,
-        duration: 30,
-      },
+      "",
       async (data: TaskFormData) => {
         if (!this.fileManager) return;
 
@@ -200,7 +204,8 @@ export default class TaskManagerPlugin extends Plugin {
           duration: data.duration,
           isAllDay: data.isAllDay,
           repeat: data.repeat,
-          group: data.group,
+          project: data.project,
+          type: data.type,
         };
 
         await this.fileManager.createTask(task);
@@ -208,7 +213,9 @@ export default class TaskManagerPlugin extends Plugin {
         new Notice("Task created");
       },
       {
-        groupNames: [], // Will be populated if needed
+        groupNames: projects.length > 0 ? projects : ["Inbox"],
+        tagNames: tags,
+        typeNames: types,
       }
     );
 

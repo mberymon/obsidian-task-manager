@@ -107,8 +107,8 @@ export class TableView {
 
       // Group
       const groupCell = row.createEl("td", { cls: "task-table-cell task-table-cell-group" });
-      if (task.group) {
-        groupCell.textContent = task.group;
+      if (task.project) {
+        groupCell.textContent = task.project;
       }
 
       // Actions

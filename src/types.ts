@@ -50,7 +50,8 @@ export interface Task {
   isAllDay?: boolean;
   repeat?: RepeatConfig;
   repeatParentId?: string; // for recurring task instances
-  group?: string; // group/category name
+  project?: string; // project name (formerly "group")
+  type?: string; // task type: task, event, note
   isGhost?: boolean; // ghost occurrence for recurring tasks
   content?: string; // raw markdown content
   frontmatter?: Record<string, unknown>; // frontmatter data
@@ -59,10 +60,13 @@ export interface Task {
 // View types
 export type ViewType = "table" | "kanban" | "calendar";
 
+// Calendar view modes
+export type CalendarViewMode = "month" | "week" | "3day" | "day" | "agenda" | "list";
+
 // View configuration
 export interface ViewConfig {
   type: ViewType;
-  groupBy?: string; // field to group by (e.g., "status", "priority", "group")
+  groupBy?: string; // field to group by (e.g., "status", "priority", "project")
   sortBy?: string; // field to sort by (e.g., "dueDate", "priority")
   sortOrder?: "asc" | "desc";
   filter?: string; // filter expression
@@ -79,11 +83,13 @@ export interface TaskManagerSettings {
   // Task file settings
   taskFolderPath: string; // folder for task files
   defaultTaskFile: string; // default file name for new tasks
+  defaultProject: string; // default project for new tasks
 
   // View settings
   defaultView: ViewType;
   showCompletedByDefault: boolean;
   showCancelledByDefault: boolean;
+  defaultCalendarView: CalendarViewMode;
 
   // Date/time settings
   dateFormat: string;
@@ -95,15 +101,13 @@ export interface TaskManagerSettings {
   defaultRepeatFreq: RepeatFreq;
   defaultRepeatInterval: number;
 
-  // Google Calendar integration (optional)
-  enableGoogleCalendar: boolean;
-  googleCalendarId?: string;
-
   // Task types
   taskTypes: TaskTypeConfig[];
 
-  // Legacy settings (for migration)
-  legacySettings?: Record<string, unknown>;
+  // Known options for dropdowns
+  knownProjects: string[];
+  knownTags: string[];
+  knownTypes: string[];
 }
 
 // Task type configuration
@@ -126,8 +130,9 @@ export interface CodeBlockParams {
   showCancelled?: boolean;
   dateRange?: string; // e.g., "today", "week", "month", "2024-01-01,2024-12-31"
   limit?: number;
-  groups?: string[]; // specific groups to show
+  projects?: string[]; // specific projects to show
   tags?: string[]; // specific tags to filter
+  calendarMode?: CalendarViewMode; // calendar view mode
 }
 
 // Drag and drop state
@@ -151,7 +156,7 @@ export interface TaskFormData {
   duration?: number;
   isAllDay?: boolean;
   repeat?: RepeatConfig;
-  group?: string;
+  project?: string;
   type?: string;
   content?: string;
   enableDateRange?: boolean;
@@ -181,4 +186,12 @@ export interface TableColumn {
   sortable: boolean;
   width?: string;
   render?: (task: Task) => string;
+}
+
+// Table group
+export interface TableGroup {
+  groupKey: string;
+  groupName: string;
+  tasks: Task[];
+  color?: string;
 }

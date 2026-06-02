@@ -1,6 +1,6 @@
-Obsidian Task Views Plugin 
+# Obsidian Task Views Plugin
 
-Manage Tasks in Obsidian with ease and integrate with Google Calendar for full task and event management. Keep your tasks and events local and private, but sync them to your Google Calendar for easy access and notifications. Your tasks and events are synced in real-time.
+Manage tasks in Obsidian with a clean, modern interface. Organize tasks by project, set priorities, add tags, and view them in table, kanban, or calendar views.
 
 Based on this original plugin: https://github.com/antoneheyward/obsidian-task-manager
 
@@ -8,21 +8,20 @@ by Antone Heyward: [Buying me a coffee](https://buymeacoffee.com/antoneheyward) 
 
 ## Installation
 
-Step 1: Install BRAT
+### Step 1: Install BRAT
 
 1. Open Obsidian and go to **Settings** > **Community plugins**.
 2. Click **Turn on community plugins** (and ensure **Restricted mode** is disabled).
 3. Click **Browse** and search for **"BRAT"**.
-4. Click **Install** and then **Enable**. 
+4. Click **Install** and then **Enable**.
 
-Step 2: Install a Obsidian Task Manager Plugin
+### Step 2: Install Obsidian Task Views Plugin
 
 1. Get the GitHub repository URL: https://github.com/mberymon/obsidian-task-views
 2. Go to Obsidian **Settings** and scroll down to the **BRAT** section in your sidebar.
 3. Click **Add Beta plugin**.
 4. Paste the copied GitHub link, select the latest version, and click **Add Plugin**.
 5. Go back to **Settings** > **Community plugins**, scroll down to find the newly installed plugin, and make sure it's **Toggled On**
-6. ~~Watch this video if you need instruction on how to setup Google Calendar integration. [Configure integration with Google Calendar](https://youtu.be/BW2TJp9wV9k)~~
 
 ## Usage
 
@@ -33,8 +32,20 @@ Step 2: Install a Obsidian Task Manager Plugin
 3. Or write tasks directly in markdown:
 
 ```markdown
-- [ ] My task 📅2024-01-15 ⏫ 🏷️work
+- [ ] My task 📅2024-01-15 ⏫ 🏷️work 📁Inbox
 ```
+
+### Task Format
+
+| Field | Emoji | Example |
+|-------|-------|---------|
+| Due Date | 📅 | `📅2024-01-15` or `📅2024-01-15 14:30` |
+| Start Date | ⏳ | `⏳2024-01-10` |
+| Priority | ⏫🔼🔽 | `⏫` (urgent) |
+| Tags | 🏷️ | `🏷️work,urgent` or `#work #urgent` |
+| Project | 📁 | `📁Inbox` |
+| Duration | ⏱️ | `⏱️30` |
+| Recurrence | 🔁 | `🔁FREQ=WEEKLY;BYDAY=MO` |
 
 ### Viewing Tasks
 
@@ -62,21 +73,22 @@ view: kanban
 ````markdown
 ```task-manager
 view: calendar
-dateRange: month
+calendarMode: month
 ```
 ````
 
-### Task Format
+### Calendar View Modes
 
-| Field | Emoji | Example |
-|-------|-------|---------|
-| Due Date | 📅 | `📅2024-01-15` |
-| Start Date | ⏳ | `⏳2024-01-10` |
-| Priority | ⏫🔼🔽 | `⏫` (urgent) |
-| Tags | 🏷️ | `🏷️work,urgent` |
-| Group | 📁 | `📁Inbox` |
-| Duration | ⏱️ | `⏱️30` |
-| Recurrence | 🔁 | `🔁FREQ=WEEKLY;BYDAY=MO` |
+The calendar view supports multiple display modes:
+
+| Mode | Description |
+|------|-------------|
+| `month` | Full month grid |
+| `week` | 7-day week view |
+| `3day` | 3-day compact view |
+| `day` | Single day view |
+| `agenda` | Upcoming events list |
+| `list` | Flat task list |
 
 ### Commands
 
@@ -85,10 +97,26 @@ dateRange: month
 
 ### Settings
 
-Configure the plugin in Obsidian Settings > Task Manager:
+Configure the plugin in Obsidian Settings > Task Views:
 
 - Task folder location
 - Default view type
+- Default calendar view mode
+- Default project for new tasks
 - Show completed/cancelled tasks
 - Date format
-- Google Calendar integration
+- Start of week
+- Default repeat frequency
+
+### Create Task Modal Features
+
+The task creation modal includes:
+
+- **Date shortcuts**: Quick buttons for Today, Tomorrow, Next Week, Next Month
+- **Project dropdown**: Select or type a new project name (default: "Inbox")
+- **Type dropdown**: Choose task type (task, event, note)
+- **Multi-select Tags**: Add multiple tags with autocomplete and pill removal
+- **All Day toggle**: Hide/show time inputs for specific scheduling
+- **Priority pills**: Low → None → Medium → High → Urgent
+- **Recurrence panel**: Set up recurring tasks with flexible options
+- **Clearable inputs**: X button to quickly clear any field

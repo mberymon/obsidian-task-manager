@@ -66,7 +66,7 @@ export class TaskFileManager {
    * Create a new task in a file
    */
   async createTask(task: Omit<Task, "id" | "filePath" | "line">): Promise<Task | null> {
-    const targetFile = await this.getTargetFile(task.group);
+    const targetFile = await this.getTargetFile(task.project);
     if (!targetFile) return null;
 
     const content = await this.app.vault.read(targetFile);
@@ -180,11 +180,11 @@ export class TaskFileManager {
   /**
    * Get or create the target file for a task
    */
-  private async getTargetFile(group?: string): Promise<TFile | null> {
+  private async getTargetFile(project?: string): Promise<TFile | null> {
     let targetPath: string;
 
-    if (group) {
-      targetPath = normalizePath(`${this.taskFolderPath}/${group}.md`);
+    if (project) {
+      targetPath = normalizePath(`${this.taskFolderPath}/${project}.md`);
     } else {
       targetPath = normalizePath(`${this.taskFolderPath}/tasks.md`);
     }
@@ -207,13 +207,13 @@ export class TaskFileManager {
   /**
    * Get all unique group names from tasks
    */
-  async getGroupNames(): Promise<string[]> {
+  async getProjectNames(): Promise<string[]> {
     const tasks = await this.readAllTasks();
-    const groups = new Set<string>();
+    const projects = new Set<string>();
 
     for (const task of tasks) {
-      if (task.group) {
-        groups.add(task.group);
+      if (task.project) {
+        projects.add(task.project);
       }
     }
 
@@ -223,12 +223,12 @@ export class TaskFileManager {
       if (file.path.startsWith(this.taskFolderPath) && file.path !== this.taskFolderPath) {
         const fileName = file.basename;
         if (fileName !== "tasks") {
-          groups.add(fileName);
+          projects.add(fileName);
         }
       }
     }
 
-    return Array.from(groups).sort();
+    return Array.from(projects).sort();
   }
 
   /**

@@ -1,6 +1,6 @@
 # Task Format Reference
 
-The Obsidian Task Manager plugin uses a simple markdown format for tasks with emoji-based metadata.
+The Obsidian Task Views plugin uses a simple markdown format for tasks with emoji-based metadata.
 
 ## Basic Task Format
 
@@ -26,7 +26,7 @@ The Obsidian Task Manager plugin uses a simple markdown format for tasks with em
 - [ ] Task title 📅2024-01-15 14:30
 ```
 
-Format: `YYYY-MM-DD` or `YYYY-MM-DD HH:mm`
+Format: `YYYY-MM-DD` (all day) or `YYYY-MM-DD HH:mm` (specific time)
 
 ### Start Date ⏳
 
@@ -57,16 +57,25 @@ Format: `YYYY-MM-DD` or `YYYY-MM-DD HH:mm`
 
 ### Tags 🏷️
 
+Tags can be assigned as a comma-separated list or as inline hashtags:
+
 ```markdown
 - [ ] Task title 🏷️work,urgent
 - [ ] Task title #work #urgent
 ```
 
-### Group 📁
+### Project 📁
+
+Tasks are organized into projects (formerly "groups"). Default project is "Inbox".
 
 ```markdown
 - [ ] Task title 📁Inbox
+- [ ] Task title 📁Finance
 ```
+
+### Task Type
+
+Tasks can have a type classification: `task`, `event`, or `note`. Default is `task`.
 
 ### Duration ⏱️
 
@@ -130,6 +139,7 @@ showCompleted: true
 ````markdown
 ```task-manager
 view: calendar
+calendarMode: month
 dateRange: month
 ```
 ````
@@ -139,13 +149,14 @@ dateRange: month
 | Parameter | Values | Description |
 |-----------|--------|-------------|
 | view | table, kanban, calendar | View type |
-| groupBy | status, priority, group, tags | Group tasks by field |
-| sortBy | dueDate, startDate, priority, title, group, status | Sort by field |
+| groupBy | status, priority, project, tags | Group tasks by field |
+| sortBy | dueDate, startDate, priority, title, project, status | Sort by field |
 | sortOrder | asc, desc | Sort order |
 | filter | text | Filter by text |
 | showCompleted | true, false | Show completed tasks |
 | showCancelled | true, false | Show cancelled tasks |
 | dateRange | today, tomorrow, week, month, YYYY-MM-DD,YYYY-MM-DD | Date range filter |
 | limit | number | Maximum number of tasks |
-| groups | group1,group2 | Filter by groups |
+| projects | project1,project2 | Filter by projects |
 | tags | tag1,tag2 | Filter by tags |
+| calendarMode | month, week, 3day, day, agenda, list | Calendar view mode |

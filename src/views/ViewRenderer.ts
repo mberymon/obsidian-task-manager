@@ -52,7 +52,7 @@ export class ViewRenderer {
           params.limit = parseInt(value, 10);
           break;
         case "groups":
-          params.groups = value.split(",").map((g) => g.trim());
+          params.projects = value.split(",").map((g) => g.trim());
           break;
         case "tags":
           params.tags = value.split(",").map((t) => t.trim());

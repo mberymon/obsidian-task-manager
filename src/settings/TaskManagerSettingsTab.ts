@@ -119,34 +119,38 @@ export class TaskManagerSettingsTab extends PluginSettingTab {
           })
       );
 
-    // Google Calendar integration
+    // Default calendar view
     new Setting(containerEl)
-      .setName("Enable Google Calendar")
-      .setDesc("Sync tasks with Google Calendar (requires API setup)")
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.enableGoogleCalendar)
+      .setName("Default calendar view")
+      .setDesc("Default view mode for calendar blocks")
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("month", "Month")
+          .addOption("week", "Week")
+          .addOption("3day", "3 Day")
+          .addOption("day", "Day")
+          .addOption("agenda", "Agenda")
+          .addOption("list", "List")
+          .setValue(this.plugin.settings.defaultCalendarView)
           .onChange(async (value) => {
-            this.plugin.settings.enableGoogleCalendar = value;
+            this.plugin.settings.defaultCalendarView = value as any;
             await this.plugin.saveSettings();
           })
       );
 
-    // Google Calendar ID
-    if (this.plugin.settings.enableGoogleCalendar) {
-      new Setting(containerEl)
-        .setName("Google Calendar ID")
-        .setDesc("Calendar ID for syncing (e.g., primary or your calendar email)")
-        .addText((text) =>
-          text
-            .setPlaceholder("primary")
-            .setValue(this.plugin.settings.googleCalendarId ?? "")
-            .onChange(async (value) => {
-              this.plugin.settings.googleCalendarId = value;
-              await this.plugin.saveSettings();
-            })
-        );
-    }
+    // Default project
+    new Setting(containerEl)
+      .setName("Default project")
+      .setDesc("Default project for new tasks")
+      .addText((text) =>
+        text
+          .setPlaceholder("Inbox")
+          .setValue(this.plugin.settings.defaultProject)
+          .onChange(async (value) => {
+            this.plugin.settings.defaultProject = value || "Inbox";
+            await this.plugin.saveSettings();
+          })
+      );
 
     // Reset settings
     new Setting(containerEl)
